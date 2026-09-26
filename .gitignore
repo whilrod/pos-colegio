@@ -1,0 +1,29 @@
+#variables de entorno
+.env
+.env.*
+!.env.example
+
+#compilacion de go
+/bin/
+/dist/
+/build/
+
+#Archivos temporales
+*.tmp
+*.temp
+
+#logs
+*.log
+
+#cobertura y profiling
+coverage.out
+*.prof
+
+#ide
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+
+#sistema operativo
+.DS_Store
+Thumbs.db
