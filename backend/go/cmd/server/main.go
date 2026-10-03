@@ -1,13 +1,13 @@
 package main
 
 import (
-	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
+	"backend-pos-colegio/internal/database"
+
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -21,15 +21,11 @@ func main() {
 		log.Fatal("SUPABASE_DB_URL no está configurada")
 	}
 
-	db, err := sql.Open("postgres", dbURL)
+	db, err := database.Connect(dbURL)
 	if err != nil {
-		log.Fatalf("No se pudo abrir la conexión a PostgreSQL: %v", err)
+		log.Fatal(err)
 	}
 	defer db.Close()
-
-	if err := db.Ping(); err != nil {
-		log.Fatalf("No se pudo conectar a PostgreSQL: %v", err)
-	}
 
 	fmt.Println("Backend POS Colegio iniciado")
 	fmt.Println("Conexión a PostgreSQL establecida correctamente")
