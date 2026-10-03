@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"backend-pos-colegio/internal/database"
+	"backend-pos-colegio/internal/server"
 
 	"github.com/joho/godotenv"
 )
@@ -27,6 +28,11 @@ func main() {
 	}
 	defer db.Close()
 
-	fmt.Println("Backend POS Colegio iniciado")
-	fmt.Println("Conexión a PostgreSQL establecida correctamente")
+	httpServer := server.New()
+
+	log.Printf("Backend POS Colegio iniciado en %s", httpServer.Addr)
+
+	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Error en el servidor HTTP: %v", err)
+	}
 }
