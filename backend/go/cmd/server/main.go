@@ -3,34 +3,30 @@ package main
 import (
 	"log"
 	"net/http"
-	"os"
 
+	"backend-pos-colegio/internal/config"
 	"backend-pos-colegio/internal/database"
 	"backend-pos-colegio/internal/handler"
+	"backend-pos-colegio/internal/repository"
 	"backend-pos-colegio/internal/server"
 	"backend-pos-colegio/internal/service"
-
-	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("No se pudo cargar el archivo .env")
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	dbURL := os.Getenv("SUPABASE_DB_URL")
-
-	if dbURL == "" {
-		log.Fatal("SUPABASE_DB_URL no está configurada")
-	}
-
-	db, err := database.Connect(dbURL)
+	db, err := database.Connect(cfg.DatabaseURL)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	healthService := service.NewHealthService()
+	repository := repository.NewRepository(db)
+
+	healthService := service.NewHealthService(repository)
 	healthHandler := handler.NewHealthHandler(healthService)
 
 	httpServer := server.New(healthHandler)
