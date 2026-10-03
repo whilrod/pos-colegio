@@ -6,7 +6,9 @@ import (
 	"os"
 
 	"backend-pos-colegio/internal/database"
+	"backend-pos-colegio/internal/handler"
 	"backend-pos-colegio/internal/server"
+	"backend-pos-colegio/internal/service"
 
 	"github.com/joho/godotenv"
 )
@@ -28,7 +30,10 @@ func main() {
 	}
 	defer db.Close()
 
-	httpServer := server.New()
+	healthService := service.NewHealthService()
+	healthHandler := handler.NewHealthHandler(healthService)
+
+	httpServer := server.New(healthHandler)
 
 	log.Printf("Backend POS Colegio iniciado en %s", httpServer.Addr)
 
