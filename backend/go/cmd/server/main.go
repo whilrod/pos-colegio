@@ -29,11 +29,18 @@ func main() {
 	healthService := service.NewHealthService(repository)
 	healthHandler := handler.NewHealthHandler(healthService)
 
-	httpServer := server.New(healthHandler)
+	authService := service.NewAuthService(repository)
+	authHandler := handler.NewAuthHandler(authService)
+
+	httpServer := server.New(
+		healthHandler,
+		authHandler,
+	)
 
 	log.Printf("Backend POS Colegio iniciado en %s", httpServer.Addr)
 
-	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := httpServer.ListenAndServe(); err != nil &&
+		err != http.ErrServerClosed {
 		log.Fatalf("Error en el servidor HTTP: %v", err)
 	}
 }

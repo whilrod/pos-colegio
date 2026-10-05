@@ -9,7 +9,10 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
-func New(healthHandler *handler.HealthHandler) *http.Server {
+func New(
+	healthHandler *handler.HealthHandler,
+	authHandler *handler.AuthHandler,
+) *http.Server {
 	router := chi.NewRouter()
 
 	router.Use(middleware.RequestID)
@@ -17,6 +20,7 @@ func New(healthHandler *handler.HealthHandler) *http.Server {
 	router.Use(middleware.Logger)
 
 	router.Get("/health", healthHandler.Check)
+	router.Post("/auth/login", authHandler.Login)
 
 	return &http.Server{
 		Addr:    ":8080",
