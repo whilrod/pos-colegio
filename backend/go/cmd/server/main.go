@@ -29,12 +29,16 @@ func main() {
 	healthService := service.NewHealthService(repository)
 	healthHandler := handler.NewHealthHandler(healthService)
 
-	authService := service.NewAuthService(repository)
+	authService := service.NewAuthService(
+		repository,
+		cfg.SessionExpirationHours,
+	)
 	authHandler := handler.NewAuthHandler(authService)
 
 	httpServer := server.New(
 		healthHandler,
 		authHandler,
+		authService,
 	)
 
 	log.Printf("Backend POS Colegio iniciado en %s", httpServer.Addr)

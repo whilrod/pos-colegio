@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 
+	"backend-pos-colegio/internal/middleware"
 	"backend-pos-colegio/internal/response"
 	"backend-pos-colegio/internal/service"
 )
@@ -72,4 +73,17 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	_ = json.NewEncoder(w).Encode(result)
+}
+
+func (h *AuthHandler) Session(w http.ResponseWriter, r *http.Request) {
+	session, ok := middleware.GetAuthenticatedSession(r.Context())
+	if !ok {
+		response.JSONError(w, http.StatusUnauthorized, "Sesion no autenticada")
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+
+	_ = json.NewEncoder(w).Encode(session)
 }

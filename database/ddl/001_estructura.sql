@@ -5,7 +5,7 @@
    Fuente de verdad:
    Esquema LIVE de Supabase reconstruido y validado.
 
-   Total de tablas: 45
+   Total de tablas: 46
 
    Este archivo contiene únicamente estructura:
    - Extensiones
@@ -317,9 +317,45 @@ CREATE TABLE empleado (
         CHECK (btrim(estado) <> '')
 );
 
+/* ============================================================
+   8. SESIONES
+   ============================================================ */
+
+CREATE TABLE sesion (
+    idsesion UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    idempleado UUID NOT NULL,
+    token_hash TEXT NOT NULL,
+    fecha_creacion TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    fecha_expiracion TIMESTAMPTZ NOT NULL,
+    fecha_revocacion TIMESTAMPTZ NULL,
+
+    CONSTRAINT uq_sesion_token_hash
+        UNIQUE (token_hash),
+
+    CONSTRAINT fk_sesion_empleado
+        FOREIGN KEY (idempleado)
+        REFERENCES empleado (idempleado)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+
+    CONSTRAINT ck_sesion_fecha_expiracion
+        CHECK (fecha_expiracion > fecha_creacion),
+
+    CONSTRAINT ck_sesion_revocacion
+        CHECK (
+            fecha_revocacion IS NULL
+            OR fecha_revocacion >= fecha_creacion
+        )
+);
+
+CREATE INDEX idx_sesion_idempleado
+    ON sesion (idempleado);
+
+CREATE INDEX idx_sesion_fecha_expiracion
+    ON sesion (fecha_expiracion);
 
 /* ============================================================
-   8. LUGARES DE ENTREGA
+   9. LUGARES DE ENTREGA
    ============================================================ */
 
 CREATE TABLE lugar_entrega (
@@ -344,7 +380,7 @@ CREATE TABLE lugar_entrega (
 
 
 /* ============================================================
-   9. VENTAS
+   10. VENTAS
    ============================================================ */
 
 CREATE TABLE venta (
@@ -372,7 +408,7 @@ CREATE TABLE venta (
 
 
 /* ============================================================
-   10. DETALLE DE VENTA
+   11. DETALLE DE VENTA
    ============================================================ */
 
 CREATE TABLE detalle_venta (
@@ -410,7 +446,7 @@ CREATE TABLE detalle_venta (
 
 
 /* ============================================================
-   11. TIPOS Y DESCUENTOS
+   12. TIPOS Y DESCUENTOS
    ============================================================ */
 
 CREATE TABLE descuento (
@@ -454,7 +490,7 @@ CREATE TABLE descuento (
 
 
 /* ============================================================
-   12. DESCUENTO - VARIANTE
+   13. DESCUENTO - VARIANTE
    ============================================================ */
 
 CREATE TABLE descuento_variante (
@@ -480,7 +516,7 @@ CREATE TABLE descuento_variante (
 
 
 /* ============================================================
-   13. DESCUENTO - CLIENTE
+   14. DESCUENTO - CLIENTE
    ============================================================ */
 
 CREATE TABLE descuento_cliente (
@@ -506,7 +542,7 @@ CREATE TABLE descuento_cliente (
 
 
 /* ============================================================
-   14. APLICACION DE DESCUENTO
+   15. APLICACION DE DESCUENTO
    ============================================================ */
 
 CREATE TABLE aplicacion_descuento (
@@ -543,7 +579,7 @@ CREATE TABLE aplicacion_descuento (
 
 
 /* ============================================================
-   15. PAGOS
+   16. PAGOS
    ============================================================ */
 
 CREATE TABLE pago (
@@ -571,7 +607,7 @@ CREATE TABLE pago (
 
 
 /* ============================================================
-   16. FACTURA
+   17. FACTURA
    ============================================================ */
 
 CREATE TABLE factura (
@@ -598,7 +634,7 @@ CREATE TABLE factura (
 
 
 /* ============================================================
-   17. RESERVAS
+   18. RESERVAS
    ============================================================ */
 
 CREATE TABLE reserva (
@@ -623,7 +659,7 @@ CREATE TABLE reserva (
 
 
 /* ============================================================
-   18. DETALLE DE RESERVA
+   19. DETALLE DE RESERVA
    ============================================================ */
 
 CREATE TABLE detalle_reserva (
@@ -650,7 +686,7 @@ CREATE TABLE detalle_reserva (
 
 
 /* ============================================================
-   19. INVENTARIO
+   20. INVENTARIO
    ============================================================ */
 
 CREATE TABLE inventario (
@@ -680,7 +716,7 @@ CREATE TABLE inventario (
 
 
 /* ============================================================
-   20. ASIGNACION DE INVENTARIO
+   21. ASIGNACION DE INVENTARIO
    ============================================================ */
 
 CREATE TABLE asignacion_inventario (
@@ -712,7 +748,7 @@ CREATE TABLE asignacion_inventario (
 
 
 /* ============================================================
-   21. ASIGNACION A VENTA
+   22. ASIGNACION A VENTA
    ============================================================ */
 
 CREATE TABLE asignacion_venta (
@@ -734,7 +770,7 @@ CREATE TABLE asignacion_venta (
 
 
 /* ============================================================
-   22. ASIGNACION A RESERVA
+   23. ASIGNACION A RESERVA
    ============================================================ */
 
 CREATE TABLE asignacion_reserva (
@@ -756,7 +792,7 @@ CREATE TABLE asignacion_reserva (
 
 
 /* ============================================================
-   23. MOVIMIENTOS DE INVENTARIO
+   24. MOVIMIENTOS DE INVENTARIO
    ============================================================ */
 
 CREATE TABLE movimiento_inventario (
@@ -792,7 +828,7 @@ CREATE TABLE movimiento_inventario (
 
 
 /* ============================================================
-   24. MOVIMIENTOS DE ASIGNACION
+   25. MOVIMIENTOS DE ASIGNACION
    ============================================================ */
 
 CREATE TABLE movimiento_asignacion (
@@ -824,7 +860,7 @@ CREATE TABLE movimiento_asignacion (
 
 
 /* ============================================================
-   25. PROVEEDORES
+   26. PROVEEDORES
    ============================================================ */
 
 CREATE TABLE proveedor (
@@ -845,7 +881,7 @@ CREATE TABLE proveedor (
 
 
 /* ============================================================
-   26. COMPRAS
+   27. COMPRAS
    ============================================================ */
 
 CREATE TABLE compra (
@@ -866,7 +902,7 @@ CREATE TABLE compra (
 
 
 /* ============================================================
-   27. DETALLE DE COMPRA
+   28. DETALLE DE COMPRA
    ============================================================ */
 
 CREATE TABLE detalle_compra (
@@ -904,7 +940,7 @@ CREATE TABLE detalle_compra (
 
 
 /* ============================================================
-   28. RECEPCION DE COMPRA
+   29. RECEPCION DE COMPRA
    ============================================================ */
 
 CREATE TABLE recepcion_compra (
@@ -921,7 +957,7 @@ CREATE TABLE recepcion_compra (
 
 
 /* ============================================================
-   29. DETALLE DE RECEPCION
+   30. DETALLE DE RECEPCION
    ============================================================ */
 
 CREATE TABLE detalle_recepcion_compra (
@@ -961,7 +997,7 @@ CREATE TABLE detalle_recepcion_compra (
 
 
 /* ============================================================
-   30. DISTRIBUCION DE RECEPCION
+   31. DISTRIBUCION DE RECEPCION
    ============================================================ */
 
 CREATE TABLE distribucion_recepcion (
@@ -988,7 +1024,7 @@ CREATE TABLE distribucion_recepcion (
 
 
 /* ============================================================
-   31. DEVOLUCIONES DE COMPRA
+   32. DEVOLUCIONES DE COMPRA
    ============================================================ */
 
 CREATE TABLE devolucion_compra (
@@ -1005,7 +1041,7 @@ CREATE TABLE devolucion_compra (
 
 
 /* ============================================================
-   32. DETALLE DE DEVOLUCION
+   33. DETALLE DE DEVOLUCION
    ============================================================ */
 
 CREATE TABLE detalle_devolucion_compra (
@@ -1032,7 +1068,7 @@ CREATE TABLE detalle_devolucion_compra (
 
 
 /* ============================================================
-   33. ENTREGAS
+   34. ENTREGAS
    ============================================================ */
 
 CREATE TABLE entrega (
@@ -1060,7 +1096,7 @@ CREATE TABLE entrega (
 
 
 /* ============================================================
-   34. DETALLE DE ENTREGA
+   35. DETALLE DE ENTREGA
    ============================================================ */
 
 CREATE TABLE detalle_entrega (
@@ -1087,7 +1123,7 @@ CREATE TABLE detalle_entrega (
 
 
 /* ============================================================
-   35. OFERTAS
+   36. OFERTAS
    ============================================================ */
 
 CREATE TABLE oferta (
@@ -1111,7 +1147,7 @@ CREATE TABLE oferta (
 
 
 /* ============================================================
-   36. CONFIGURACION DEL SISTEMA
+   37. CONFIGURACION DEL SISTEMA
    ============================================================ */
 
 CREATE TABLE configuracion (
@@ -1135,7 +1171,7 @@ CREATE TABLE configuracion (
 
 
 /* ============================================================
-   37. SOLICITUDES DE AUTORIZACION
+   38. SOLICITUDES DE AUTORIZACION
    ============================================================ */
 
 CREATE TABLE solicitud_autorizacion (
@@ -1211,7 +1247,7 @@ CREATE TABLE solicitud_autorizacion (
 
 
 /* ============================================================
-   38. AUDITORIA
+   39. AUDITORIA
    ============================================================ */
 
 CREATE TABLE auditoria (
@@ -1244,7 +1280,7 @@ CREATE TABLE auditoria (
 
 
 /* ============================================================
-   39. STAGING DE VARIANTES
+   40. STAGING DE VARIANTES
    ============================================================ */
 
 CREATE TABLE stg_variante_producto (

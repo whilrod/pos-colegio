@@ -5,6 +5,7 @@ import (
 
 	"backend-pos-colegio/internal/handler"
 	"backend-pos-colegio/internal/middleware"
+	"backend-pos-colegio/internal/service"
 
 	"github.com/go-chi/chi/v5"
 )
@@ -12,6 +13,7 @@ import (
 func New(
 	healthHandler *handler.HealthHandler,
 	authHandler *handler.AuthHandler,
+	authService *service.AuthService,
 ) *http.Server {
 	router := chi.NewRouter()
 
@@ -21,6 +23,11 @@ func New(
 
 	router.Get("/health", healthHandler.Check)
 	router.Post("/auth/login", authHandler.Login)
+
+	router.Group(func(r chi.Router) {
+		r.Use(middleware.Auth(authService))
+		r.Get("/auth/session", authHandler.Session)
+	})
 
 	return &http.Server{
 		Addr:    ":8080",
