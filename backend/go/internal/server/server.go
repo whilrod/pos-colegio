@@ -14,6 +14,7 @@ func New(
 	healthHandler *handler.HealthHandler,
 	authHandler *handler.AuthHandler,
 	authService *service.AuthService,
+	productHandler *handler.ProductHandler,
 ) *http.Server {
 	router := chi.NewRouter()
 
@@ -28,6 +29,7 @@ func New(
 		r.Use(middleware.Auth(authService))
 		r.Get("/auth/session", authHandler.Session)
 		r.Post("/auth/logout", authHandler.Logout)
+		r.With(middleware.RequirePermission("CONSULTAR_PRODUCTO")).Get("/productos", productHandler.List)
 	})
 
 	return &http.Server{

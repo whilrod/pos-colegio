@@ -35,10 +35,13 @@ func main() {
 	)
 	authHandler := handler.NewAuthHandler(authService)
 
+	productService := service.NewProductService(repository)
+	productHandler := handler.NewProductHandler(productService)
 	httpServer := server.New(
 		healthHandler,
 		authHandler,
 		authService,
+		productHandler,
 	)
 
 	log.Printf("Backend POS Colegio iniciado en %s", httpServer.Addr)
