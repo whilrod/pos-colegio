@@ -187,3 +187,28 @@ func (r *Repository) GetActiveSessionByTokenHash(
 
 	return &session, nil
 }
+
+func (r *Repository) RevokeSessionByTokenHash(
+	ctx context.Context,
+	tokenHash string,
+) error {
+	const query = `
+			UPDATE sesion
+			SET fecha_revocacion = CURRENT_TIMESTAMP
+			WHERE token_hash = $1
+				AND fecha_revocacion IS NULL
+				AND fecha_expiracion > CURRENT_TIMESTAMP
+		`
+	result, err := r.db.ExecContext(ctx, query, tokenHash)
+	if err != nil {
+		return fmt.Errorf("no se pudo revocar la sesión: %w", err)
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("no se pudo verificar la revocación de la sesión: %w", err)
+	}
+	if rowsAffected == 0 {
+		return sql.ErrNoRows
+	}
+	return nil
+}

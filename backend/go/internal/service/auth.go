@@ -131,10 +131,7 @@ func (s *AuthService) Login(
 	}, nil
 }
 
-func (s *AuthService) ValidateSession(
-	ctx context.Context,
-	token string,
-) (*AuthenticatedSession, error) {
+func (s *AuthService) ValidateSession(ctx context.Context, token string) (*AuthenticatedSession, error) {
 	token = strings.TrimSpace(token)
 
 	if token == "" {
@@ -213,4 +210,22 @@ func parseRoleID(idRol string) (uuid.UUID, error) {
 	}
 
 	return parsed, nil
+}
+
+func (s *AuthService) Logout(ctx context.Context, token string) error {
+	token = strings.TrimSpace(token)
+	if token == "" {
+		return ErrInvalidSession
+	}
+
+	tokenHash := hashSessionToken(token)
+
+	err := s.repository.RevokeSessionByTokenHash(ctx, tokenHash)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return ErrInvalidSession
+		}
+		return fmt.Errorf("no se pudo cerrar la sesión: %w", err)
+	}
+	return nil
 }

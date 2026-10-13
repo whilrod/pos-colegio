@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strings"
 
 	"backend-pos-colegio/internal/middleware"
 	"backend-pos-colegio/internal/response"
@@ -86,4 +87,30 @@ func (h *AuthHandler) Session(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	_ = json.NewEncoder(w).Encode(session)
+}
+
+func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
+	const bearerPrefix = "Bearer "
+
+	authorization := r.Header.Get("Authorization")
+	if !strings.HasPrefix(authorization, bearerPrefix) {
+		response.JSONError(w, http.StatusUnauthorized, "Token de sesión requerido")
+		return
+	}
+
+	token := strings.TrimSpace(strings.TrimPrefix(authorization, bearerPrefix))
+	if token == "" {
+		response.JSONError(w, http.StatusUnauthorized, "Token de sesión requerido")
+		return
+	}
+	if err := h.service.Logout(r.Context(), token); err != nil {
+		switch {
+		case errors.Is(err, service.ErrInvalidSession):
+			response.JSONError(w, http.StatusUnauthorized, "Sesión inválida o expirada")
+		default:
+			response.JSONError(w, http.StatusInternalServerError, "Error interno del servidor")
+		}
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

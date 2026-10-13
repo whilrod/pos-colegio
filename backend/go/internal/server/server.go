@@ -27,6 +27,7 @@ func New(
 	router.Group(func(r chi.Router) {
 		r.Use(middleware.Auth(authService))
 		r.Get("/auth/session", authHandler.Session)
+		r.Post("/auth/logout", authHandler.Logout)
 	})
 
 	return &http.Server{

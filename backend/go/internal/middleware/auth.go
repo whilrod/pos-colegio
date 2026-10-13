@@ -14,10 +14,7 @@ type AuthContextKey string
 const AuthenticatedSessionKey AuthContextKey = "authenticated_session"
 
 type SessionValidator interface {
-	ValidateSession(
-		ctx context.Context,
-		token string,
-	) (*service.AuthenticatedSession, error)
+	ValidateSession(ctx context.Context, token string) (*service.AuthenticatedSession, error)
 }
 
 func Auth(authService SessionValidator) func(http.Handler) http.Handler {
@@ -71,19 +68,13 @@ func Auth(authService SessionValidator) func(http.Handler) http.Handler {
 				}
 				return
 			}
-			ctx := context.WithValue(
-				r.Context(),
-				AuthenticatedSessionKey,
-				session,
-			)
+			ctx := context.WithValue(r.Context(), AuthenticatedSessionKey, session)
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
-func GetAuthenticatedSession(
-	ctx context.Context,
-) (*service.AuthenticatedSession, bool) {
+func GetAuthenticatedSession(ctx context.Context) (*service.AuthenticatedSession, bool) {
 	session, ok := ctx.Value(AuthenticatedSessionKey).(*service.AuthenticatedSession)
 	return session, ok && session != nil
 }
