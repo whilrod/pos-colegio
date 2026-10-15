@@ -37,11 +37,14 @@ func main() {
 
 	productService := service.NewProductService(repository)
 	productHandler := handler.NewProductHandler(productService)
+	variantService := service.NewVariantService(repository)
+	variantHandler := handler.NewVariantHandler(variantService)
 	httpServer := server.New(
 		healthHandler,
 		authHandler,
 		authService,
 		productHandler,
+		variantHandler,
 	)
 
 	log.Printf("Backend POS Colegio iniciado en %s", httpServer.Addr)
