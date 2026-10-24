@@ -32,6 +32,7 @@ func New(
 		r.Post("/auth/logout", authHandler.Logout)
 
 		r.With(middleware.RequirePermission("CONSULTAR_PRODUCTO")).Get("/productos", productHandler.List)
+		r.With(middleware.RequirePermission("CREAR_PRODUCTO")).Post("/productos", productHandler.Create)
 		r.With(middleware.RequirePermission("CONSULTAR_VARIANTE")).Get("/variantes", variantHandler.List)
 	})
 
