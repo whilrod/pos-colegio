@@ -16,6 +16,7 @@ func New(
 	authService *service.AuthService,
 	productHandler *handler.ProductHandler,
 	variantHandler *handler.VariantHandler,
+	inventoryHandler *handler.InventoryHandler,
 ) *http.Server {
 	router := chi.NewRouter()
 
@@ -34,6 +35,11 @@ func New(
 		r.With(middleware.RequirePermission("CONSULTAR_PRODUCTO")).Get("/productos", productHandler.List)
 		r.With(middleware.RequirePermission("CREAR_PRODUCTO")).Post("/productos", productHandler.Create)
 		r.With(middleware.RequirePermission("CONSULTAR_VARIANTE")).Get("/variantes", variantHandler.List)
+		r.With(middleware.RequirePermission("CREAR_VARIANTE")).Post("/productos/{idproducto}/variantes", variantHandler.Create)
+		r.With(middleware.RequirePermission("CONSULTAR_PRODUCTO")).Get("/productos/{idproducto}", productHandler.GetByID)
+		r.With(middleware.RequirePermission("EDITAR_PRODUCTO")).Put("/productos/{idproducto}", productHandler.Update)
+		r.With(middleware.RequirePermission("DESACTIVAR_PRODUCTO")).Post("/productos/{idproducto}/desactivar", productHandler.Deactivate)
+		r.With(middleware.RequirePermission("CONSULTAR_INVENTARIO")).Get("/inventario", inventoryHandler.List)
 	})
 
 	return &http.Server{

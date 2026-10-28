@@ -1,0 +1,10 @@
+BEGIN;
+
+ALTER TABLE producto
+    ADD COLUMN estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVO';
+
+ALTER TABLE producto
+    ADD CONSTRAINT ck_producto_estado
+    CHECK (estado IN ('ACTIVO', 'INACTIVO'));
+
+COMMIT;

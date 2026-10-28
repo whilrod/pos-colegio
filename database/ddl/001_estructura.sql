@@ -173,27 +173,31 @@ CREATE TABLE cliente (
    4. PRODUCTOS
    ============================================================ */
 
-CREATE TABLE producto (
-    idproducto UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    codigo VARCHAR(50) NOT NULL,
-    descripcion VARCHAR(200) NOT NULL,
-    idcategoria UUID NOT NULL,
+   CREATE TABLE producto (
+       idproducto UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+       codigo VARCHAR(50) NOT NULL,
+       descripcion VARCHAR(200) NOT NULL,
+       idcategoria UUID NOT NULL,
+       estado VARCHAR(20) NOT NULL DEFAULT 'ACTIVO',
 
-    CONSTRAINT uq_producto_codigo
-        UNIQUE (codigo),
+       CONSTRAINT uq_producto_codigo
+           UNIQUE (codigo),
 
-    CONSTRAINT fk_producto_categoria
-        FOREIGN KEY (idcategoria)
-        REFERENCES categoria (idcategoria)
-        ON UPDATE RESTRICT
-        ON DELETE RESTRICT,
+       CONSTRAINT fk_producto_categoria
+           FOREIGN KEY (idcategoria)
+           REFERENCES categoria (idcategoria)
+           ON UPDATE RESTRICT
+           ON DELETE RESTRICT,
 
-    CONSTRAINT ck_producto_codigo
-        CHECK (btrim(codigo) <> ''),
+       CONSTRAINT ck_producto_codigo
+           CHECK (btrim(codigo) <> ''),
 
-    CONSTRAINT ck_producto_descripcion
-        CHECK (btrim(descripcion) <> '')
-);
+       CONSTRAINT ck_producto_descripcion
+           CHECK (btrim(descripcion) <> ''),
+
+       CONSTRAINT ck_producto_estado
+           CHECK (estado IN ('ACTIVO', 'INACTIVO'))
+   );
 
 
 /* ============================================================
